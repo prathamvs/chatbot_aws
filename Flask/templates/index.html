@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!-- Coding By CodingNepal - codingnepalweb.com -->
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Chatbot</title>
+  <link rel="stylesheet"href="{{url_for('static',filename='login_style.css')}}">
+</head>
+
+<body>
+  <div class="container">
+    <input type="checkbox" id="check">
+    <div class="login form">
+      <header>Login</header>
+      <form method="post" action="/check">
+        <input type="text" name="username" placeholder="Enter your Username" required>
+        <input type="password" name="password" placeholder="Enter your password" required>
+        <a href="#">Forgot password?</a>
+        <input type="submit" name="submit", class="button" value="Login">
+      </form>
+      <div class="signup">
+        <span class="signup">Don't have an account?
+          <label for="check">Signup</label>
+        </span>
+      </div>
+    </div>
+    <div class="registration form">
+      <header>Signup</header>
+      <form method="POST" action="/signup">
+        <input type="text" name="username" placeholder="Enter username" required>
+        <input type="email" name="email" placeholder="Enter your email" required>
+        <input type="password" name = "password1" placeholder="Create a password" required>
+        <input type="password" name = "password2" placeholder="Confirm your password" required>
+        <input type="submit" name="submit" class="button" value="Signup">
+      </form>
+      <div class="signup">
+        <span class="signup">Already have an account?
+          <label for="check">Login</label>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Display alert if there is an error message
+    {%if msg %}
+      alert("{{ msg }}"); 
+    {% endif %}
+
+    {% if error_msg %}
+        alert("{{ error_msg }}");
+    {% elif success_msg %}
+        alert("{{ success_msg }}");
+    {% endif %}
+  </script>
+
+</body>
+
+</html>

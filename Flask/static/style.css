@@ -1,0 +1,328 @@
+/* Body and Header CSS */
+body {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    color: #0c0c0c;
+}
+
+header {
+    padding: 30px;
+    background-color: #f7f8f7;
+    height: 40px;
+    width: 350px;
+}
+
+.body{
+    display: flex;
+    height: 100vh;
+}
+
+.sidenav {
+    width: 20%;
+    background-color: #f7f8f7;
+    position: fixed;
+    height: 100%;
+    padding: 0 0px;
+    left: 0;
+    transition: all 1s;
+}
+
+.sidenav img{
+    width: 230px;
+    margin: 25px 38px;
+    margin-top: 60px;
+}
+
+.file-card{
+    background-color:#ffffff ;
+    border: 3px dashed #cbd5e0;
+    padding: 1em;
+    min-width: 200px;
+    height: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin: 20px;
+}
+
+.file-inputs{
+    position: relative;
+    margin-bottom: 1.5em;
+    align-items: center;
+    /* display: inline-flex; */
+}
+
+.file-card .file-inputs input{
+    display: none;
+    /* z-index: 2; */
+    /* opacity: 0; */
+}
+
+.custom-file-upload {
+    position: relative;
+    background-color: #4fa516;
+    border: 1px solid #ccc;
+    display: inline-block;
+    z-index: 1;
+    padding: 6px 12px;
+    margin-left: -20px;
+    color: white;
+    cursor: pointer;
+  }
+
+.file-card .file-inputs button{
+    position: absolute;
+    /* float: right; */
+    top: 0px;
+    left: 0px;
+    /* width: 100%; */
+    margin-left:50px ;
+    height: 100%;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    background-color: #4fa516;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    border: none;
+    outline: none;
+    transition: background-color 0.4s;
+    box-shadow: 0px 8px 24px rgba(149,157,165,0.5);
+    margin: 0px 0px;
+    margin-left: 120px;
+    /* border-radius: 4px; */
+} 
+
+.spinner {
+    display: none;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-left-color: #09f;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    animation: spin 1s linear infinite;
+    margin-left: 70px;
+    margin-top: 5px;
+    float: right;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.info{
+    font-size: 15px;
+}
+
+.file-list{
+    margin-top: 10px;
+    margin-left: 20px;
+    font-size: 12px;
+}
+/* Main section */
+/* .main-content{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 20px;
+    height: 75vh;
+    /* background-color: #f9f9f9; */
+    /* width: 1400px;
+    margin-left: 350px; */
+/* } */ 
+
+.f-head{
+    margin-left: 360px;
+    margin-top:20px;
+    margin-bottom: 30px;
+    text-align: center;
+    justify-content: center;
+    /* margin: 50px 0px; */
+    font-size: 22px;
+    background-color: rgb(41, 188, 41);
+    color: #ffffff;
+    padding: 0.2em 0.02em;
+    font-family: 'Roboto',sans-serif;
+    /* border-radius: 10%; */
+    width: 1100px;
+    display: flex;
+    align-items: center;
+}
+.logout{
+    margin-left: 1370px;
+    margin-top: 12px;
+}
+.logout input{
+    border: none;
+    width: 90px;
+    height: 30px;
+    cursor: pointer;
+    background-color: rgb(41, 188, 41);
+    color: white;
+    font-weight: bold;
+}
+
+.view-text{
+    margin-left: 370px;
+    margin-bottom: 0px;
+}
+.preview-doc{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 20px;
+    height: 75vh;
+    /* background-color: #f9f9f9; */
+    width: 1100px;
+    margin-left: 350px;
+}
+
+/* Left box styling */
+.left-box {
+    width: 50%;
+    height: 98%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    overflow-y: auto; /* Enables scrolling */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.right-box {
+    width: 47%;
+    height: 98%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    overflow-y: auto; /* Enables scrolling */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.document-viewer {
+    border: 1px solid #ccc;
+    /* display: none; */
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 10px;
+    height: 630px;
+    /* Adjust height as necessary */
+    overflow-y: auto;
+    display: none;
+    /* Initially hidden */
+}
+
+.document-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Space between file name and delete icon */
+    margin: 5px 0;
+}
+
+.delete-button {
+    cursor: pointer;
+    color: red;
+}
+
+
+.chat-container {
+    width: 97%;
+    margin: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.chat-box {
+    flex-grow: 1;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #fff;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+.chat-message {
+    margin: 5px 0;
+    padding: 8px;
+    border-radius: 5px;
+}
+.user-message {
+    background-color: #e1f7d5;
+    text-align: right;
+    font-size: 15px;
+}
+.bot-response {
+    background-color: #f0f0f0;
+    text-align: left;
+    font-size: 15px;
+    font-family: Montserrat-Regular;
+    line-height: 15px;
+}
+#chat-form {
+    display: flex;
+    gap: 10px;
+}
+#chat-form input {
+    flex-grow: 1;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+#chat-form button {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: none;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+}
+#chat-form button:hover {
+    background-color: #0056b3;
+}   
+
+.typing-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin: 0 2px;
+    background-color: #999;
+    border-radius: 50%;
+    opacity: 0;
+    animation: typing 1.5s infinite;
+}
+.typing-indicator:nth-child(1) {
+    animation-delay: 0s;
+}
+.typing-indicator:nth-child(2) {
+    animation-delay: 0.3s;
+}
+.typing-indicator:nth-child(3) {
+    animation-delay: 0.6s;
+}
+@keyframes typing {
+    0%, 60%, 100% { opacity: 0; }
+    30% { opacity: 1; }
+}

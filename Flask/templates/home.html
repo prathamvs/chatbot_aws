@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    </link>
+</head>
+
+<body>
+    <div class="body">
+
+        <div class="sidenav">
+            <img src="{{ url_for('static', filename='images/logo.png') }}"></img>
+            <h4 style="margin-left:15px">Upload Files</h4>
+            <div class="file-card">
+                <div class="file-inputs">
+                    <label for="fileInput" class="custom-file-upload">
+                        Choose files
+                    </label>
+                    <input type="file" id="fileInput" style="width: 200px;" multiple onchange="displaySelectedFiles()">
+                    <button id="uploadButton" onclick="uploadFiles()">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                    <div class="spinner" id="spinner"></div>
+                </div>
+                <p class="info">PDF, JPG, PNG, CSV, Excel</p>
+                
+                
+            </div>
+            <!-- Container to display selected file names -->
+            <div id="fileList" class="file-list"></div>
+        </div>
+        <div class="main-content">
+            <div class='logout'>
+                <form method="post" action="/logout" onsubmit="return confirmLogout()">
+                    <div class="form-group">
+                        <input type="submit" name="submit" value="Log out" class="btn btn-primary btn-block">
+                    </div>
+                </form>
+            </div>
+
+            <div class='f-head'>
+                <b>AI Generative Chatbot </b>
+            </div>
+            <p style="font-size:20px;margin-top:5px;" class="view-text"><b>Document Viewer</b></p>
+            <p style="font-size:20px;margin-top:-28px;margin-left:950px" class="view-text"><b>Chatbot</b></p>
+            <div class="preview-doc">
+
+                <div class="left-box">
+
+                    <div id="documentContainer"></div>
+                </div>
+                <div class="right-box">
+                    
+                    <div class="chat-container">
+                       
+                        <div id="chat-box" class="chat-box"></div>
+                    
+                        <form id="chat-form" method="post">
+                            <input type="text" id="query" name="query" placeholder="Type your message..." required>
+                            <button type="submit">Send</button>
+                        </form>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+
+        async function uploadFiles() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadButton = document.getElementById('uploadButton');
+            const spinner = document.getElementById('spinner');
+            const documentContainer = document.getElementById('documentContainer');
+            const files = fileInput.files;
+
+            if (!files.length) {
+                alert("Please select files first!");
+                return;
+            }
+
+            const formData = new FormData();
+            for (const file of files) {
+                formData.append('files', file);
+            }
+
+            // Show the spinner and disable the button
+            spinner.style.display = 'inline-block';
+            uploadButton.disabled = true;
+
+            try {
+                const response = await fetch('/upload_multiple', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                console.log(result);
+
+                // Display uploaded documents
+                for (const fileResult of result.results) {
+                    displayDocument(fileResult.file_name, fileResult.folder_name, fileResult.file_type);
+                }
+
+                alert("File upload results:\n" + JSON.stringify(result.results, null, 2));
+            } catch (error) {
+                console.error('Error uploading files:', error);
+                alert("Error uploading files. Please try again.");
+            } finally {
+                // Hide the spinner and enable the button after upload completes
+                spinner.style.display = 'none';
+                uploadButton.disabled = false;
+            }
+        }
+
+        function displayDocument(fileName, folderName, fileType) {
+            const documentContainer = document.getElementById('documentContainer');
+
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `<span>${fileName}</span>`;
+
+            // Add delete button
+            const deleteButton = document.createElement('span');
+            deleteButton.className = 'delete-button';
+            deleteButton.innerHTML = '🗑️';
+            deleteButton.onclick = function () {
+                deleteFile(fileName, folderName, fileItem);
+            };
+
+            fileItem.appendChild(deleteButton);
+            documentContainer.appendChild(fileItem);
+
+            // Display the document based on file type
+            const documentViewer = document.createElement('div');
+            documentViewer.className = 'document-viewer';
+            documentViewer.style.display = 'block';
+
+            const content = document.createElement('div');
+            content.style.width = '100%';
+            content.style.height = '100%';
+
+            const fileUrl = `https://pp-chatbot.s3.eu-west-1.amazonaws.com/${folderName}/${fileName}`;
+
+            if (fileType === 'application/pdf') {
+                // Display PDF
+                const pdfIframe = document.createElement('iframe');
+                pdfIframe.src = fileUrl;
+                pdfIframe.style.width = '100%';
+                pdfIframe.style.height = '100%';
+                pdfIframe.frameBorder = '0';
+                content.appendChild(pdfIframe);
+            } else if (fileType.startsWith('image/')) {
+                // Display image
+                const img = document.createElement('img');
+                img.src = fileUrl;
+                img.style.width = '100%';
+                img.style.height = 'auto';
+                content.appendChild(img);
+            } else if (fileType === 'text/csv') {
+                // Display CSV file as a table
+                fetch(fileUrl)
+                    .then(response => response.text())
+                    .then(text => {
+                        const table = document.createElement('table');
+                        table.style.width = '100%';
+                        table.style.borderCollapse = 'collapse';
+                        table.style.marginTop = '10px';
+
+                        const rows = text.trim().split('\n');
+                        rows.forEach((row, index) => {
+                            const tr = document.createElement('tr');
+                            const cells = row.split(',');
+
+                            cells.forEach(cell => {
+                                const cellElement = document.createElement(index === 0 ? 'th' :
+                                    'td');
+                                cellElement.textContent = cell.trim();
+                                cellElement.style.border = '1px solid #ddd';
+                                cellElement.style.padding = '20px';
+                                if (index === 0) {
+                                    cellElement.style.backgroundColor = '#f2f2f2';
+                                    cellElement.style.textAlign = 'left';
+                                    cellElement.style.fontSize = '12px'
+                                }
+                                tr.appendChild(cellElement);
+                            });
+
+                            // Add alternating row colors for better readability
+                            if (index % 2 === 1) {
+                                tr.style.backgroundColor = '#f9f9f9';
+                                tr.style.fontSize = '12px'
+                            }
+                            tr.style.fontSize = '12px'
+                            table.appendChild(tr);
+                        });
+
+                        content.appendChild(table);
+                    })
+                    .catch(error => {
+                        console.error('Error loading CSV file:', error);
+                        content.innerHTML = `<p>Error loading file</p>`;
+                    });
+            } else if (fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+                fileType ===
+                'application/vnd.ms-excel') {
+                // Display download link for Excel files
+                content.innerHTML =
+                    `<p><a href="${fileUrl}" target="_blank">Download Excel file: ${fileName}</a></p>`;
+            } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+                fileType === 'application/msword') {
+                // Display download link for Word files
+                content.innerHTML =
+                    `<p><a href="${fileUrl}" target="_blank">Download Word file: ${fileName}</a></p>`;
+            } else if (fileType.startsWith('text/')) {
+                // Display text file
+                fetch(fileUrl)
+                    .then(response => response.text())
+                    .then(text => {
+                        const pre = document.createElement('pre');
+                        pre.textContent = text;
+                        content.appendChild(pre);
+                    })
+                    .catch(error => {
+                        console.error('Error loading text file:', error);
+                        content.innerHTML = `<p>Error loading file</p>`;
+                    });
+            } else {
+                // Display link to download for unsupported types
+                content.innerHTML = `<p><a href="${fileUrl}" target="_blank">Download ${fileName}</a></p>`;
+            }
+
+            documentViewer.appendChild(content);
+            documentContainer.appendChild(documentViewer);
+        }
+
+        function displaySelectedFiles() {
+            const fileInput = document.getElementById('fileInput');
+            const fileListContainer = document.getElementById('fileList');
+            
+            // Clear previous file names
+            fileListContainer.innerHTML = '';
+
+            // Display the names of selected files
+            const files = fileInput.files;
+            if (files.length > 0) {
+                Array.from(files).forEach((file) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.id = `file-item-${file.name}`;
+                    fileItem.innerHTML = `<p>${file.name}</p>`;
+                    fileListContainer.appendChild(fileItem);
+                });
+            } else {
+                fileListContainer.innerHTML = '<p>No files selected</p>';
+            }
+        }
+
+        async function deleteFile(fileName, folderName, fileItem) {
+            const confirmation = confirm(`Are you sure you want to delete ${fileName}?`);
+
+            if (!confirmation) return;
+        
+            try {
+                const response = await fetch('/delete_file', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        file_name: fileName,
+                        folder_name: folderName
+                    })
+                });
+        
+                const result = await response.json();
+                console.log(result);
+        
+                if (result.status === 'success') {
+                    // Remove the file item from the document container
+                    document.getElementById('documentContainer').removeChild(fileItem);
+                    const fileitem = document.getElementById(`file-item-${fileName}`);
+                    if (fileitem) {
+                        fileitem.remove();
+                    }
+
+                    // Remove the document viewer if present
+                    const documentViewer = document.querySelector('.document-viewer');
+                    if (documentViewer) {
+                        document.getElementById('documentContainer').removeChild(documentViewer);
+                    }
+        
+                    // Clear the chat box to start a new conversation
+                    $("#chat-box").empty(); // This clears the chat history
+                    console.log("Chat history cleared after file deletion.");
+        
+                    // Show success message
+                    alert(result.message);
+                } else {
+                    alert("Failed to delete the file.");
+                }
+            } catch (error) {
+                console.error('Error deleting file:', error);
+                alert("Error deleting the file. Please try again.");
+            }
+        }
+
+        $(document).ready(function () {
+            $("#chat-form").on("submit", function (event) {
+                event.preventDefault();
+    
+                var query = $("#query").val().trim();
+                if (!query) return;
+    
+                // Display the user's message
+                var userHtml = '<div class="chat-message user-message">' + query + '</div>';
+                $("#chat-box").append(userHtml);
+                $("#query").val("");
+    
+                // Show typing indicator
+                var typingHtml = `
+                    <div class="chat-message bot-response typing-indicator-container">
+                        <span class="typing-indicator"></span>
+                        <span class="typing-indicator"></span>
+                        <span class="typing-indicator"></span>
+                    </div>`;
+                $("#chat-box").append(typingHtml);
+                $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+    
+                // Send the input to the backend using AJAX
+                $.ajax({
+                    type: "POST",
+                    url: "/get",
+                    data: { query: query },
+                    success: function (response) {
+                        // Remove typing indicator
+                        $(".typing-indicator-container").remove();
+    
+                        // Display the bot's response
+                        var botHtml = '<div class="chat-message bot-response">' + response.response + '</div>';
+                        $("#chat-box").append(botHtml);
+                        $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+                    },
+                    error: function () {
+                        // Remove typing indicator
+                        $(".typing-indicator-container").remove();
+    
+                        var errorHtml = '<div class="chat-message bot-response">Error: Unable to reach the server.</div>';
+                        $("#chat-box").append(errorHtml);
+                        $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+                    }
+                });
+            });
+        });
+
+        function confirmLogout() {
+            
+            return confirm("Are you sure you want to log out?");
+        }
+    </script>
+
+   
+
+
+
+
+</body>
+
+</html>
